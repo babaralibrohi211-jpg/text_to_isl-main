@@ -1,7 +1,7 @@
 FROM python:3.9
 
-# Install Java (required for Stanford Parser)
-RUN apt-get update && apt-get install -y openjdk-11-jdk
+# Install Java (FIXED: use Java 17 instead of 11)
+RUN apt-get update && apt-get install -y openjdk-17-jre && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
@@ -9,18 +9,20 @@ WORKDIR /app
 # Copy project files
 COPY . .
 
-# Upgrade pip
+# Upgrade pip tools
 RUN pip install --upgrade pip setuptools wheel
 
-# Install dependencies
+# Install Python dependencies
 RUN pip install -r requirements.txt
 
-# Set environment variables for Java
-ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+# Set Java environment variables
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 ENV PATH="$JAVA_HOME/bin:$PATH"
 
-# Expose port (Render uses dynamic PORT)
-EXPOSE 8080
+# Render uses dynamic port (IMPORTANT)
+ENV PORT=5000
 
-# Run app
+EXPOSE 5000
+
+# Run Flask app
 CMD ["python", "main.py"]
