@@ -22,7 +22,8 @@ STANZA_DIR = os.path.join(BASE_DIR, "stanza_resources")
 
 # Download only once (safe for local setup)
 if not os.path.exists(STANZA_DIR):
-    stanza.download('en', model_dir=STANZA_DIR)
+    if not os.path.exists(STANZA_DIR):
+     stanza.download('en', model_dir=STANZA_DIR)
 
 # FIXED PIPELINE (NO spaCy MIX)
 en_nlp = stanza.Pipeline(
