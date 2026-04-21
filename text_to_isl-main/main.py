@@ -203,20 +203,26 @@ def modify_tree_structure(parent_tree):
 
 
 def reorder_eng_to_isl(input_string):
-    download_required_packages()
+    # If all single letters, no reordering needed
     count = 0
     for word in input_string:
         if len(word) == 1:
             count += 1
     if count == len(input_string):
         return input_string
-    parser = StanfordParser()
-    possible_parse_tree_list = [tree for tree in parser.parse(input_string)]
-    parse_tree = possible_parse_tree_list[0]
-    parent_tree = ParentedTree.convert(parse_tree)
-    modified_parse_tree = modify_tree_structure(parent_tree)
-    parsed_sent = modified_parse_tree.leaves()
-    return parsed_sent
+    # Try Stanford Parser for ISL reordering, fall back to original order if unavailable
+    try:
+        download_required_packages()
+        parser = StanfordParser()
+        possible_parse_tree_list = [tree for tree in parser.parse(input_string)]
+        parse_tree = possible_parse_tree_list[0]
+        parent_tree = ParentedTree.convert(parse_tree)
+        modified_parse_tree = modify_tree_structure(parent_tree)
+        parsed_sent = modified_parse_tree.leaves()
+        return parsed_sent
+    except Exception as e:
+        print(f"Stanford Parser unavailable, using original word order: {e}")
+        return input_string
 
 
 final_words = []
