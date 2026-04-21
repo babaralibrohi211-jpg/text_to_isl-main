@@ -1,26 +1,22 @@
 FROM python:3.9-slim
 
-# Install Java using official Debian-compatible package set
-RUN apt-get update && apt-get install -y default-jre-headless && rm -rf /var/lib/apt/lists/*
+# Install Java (needed for Stanford Parser)
+RUN apt-get update && apt-get install -y \
+    default-jre \
+    && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
-WORKDIR /app
+ENV JAVA_HOME=/usr/lib/jvm/default-java
 
-# Copy project
+WORKDIR /root
+
+COPY requirements.txt .
 COPY . .
 
-# Upgrade pip tools
 RUN pip install --upgrade pip setuptools wheel
-
-# Install dependencies
 RUN pip install -r requirements.txt
 
-# Set Java path (auto-detected path)
-ENV JAVA_HOME=/usr/lib/jvm/default-java
-ENV PATH="$JAVA_HOME/bin:$PATH"
-
-# Render dynamic port
-ENV PORT=5000
+# Download spaCy small English model (~12MB, much lighter than stanza)
+RUN python -m spacy download en_core_web_sm
 
 EXPOSE 5000
 
